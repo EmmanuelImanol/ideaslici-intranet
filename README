@@ -1,0 +1,14 @@
+src/
+├── auth/
+│   ├── decorators/       # @Roles('admin')
+│   ├── guards/           # RolesGuard.ts, JwtAuthGuard.ts
+│   ├── strategies/       # jwt.strategy.ts (Valida el token)
+│   ├── auth.controller.ts
+│   ├── auth.module.ts
+│   └── auth.service.ts
+├── users/
+│   ├── entities/
+│   │   └── user.entity.ts # Aquí definimos el Enum Role
+│   └── users.service.ts
+├── app.module.ts         # Aquí conectas tu typeOrmConfig
+└── .env                  # Tus credenciales de Postgres
