@@ -6,7 +6,22 @@ import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
   app.setGlobalPrefix('api');
+
+  // 🛠️ CONFIGURACIÓN DE CORS DINÁMICA
+  const frontendUrl = process.env.FRONTEND_URL;
+
+  app.enableCors({
+    origin: [
+      frontendUrl, // URL de producción desde variables de entorno
+      'http://localhost:3000', // Local para desarrollo
+      'http://localhost:3001',
+    ].filter(Boolean) as string[], // Filtramos por si frontendUrl llega undefined
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -14,14 +29,13 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
   app.useStaticAssets(join(__dirname, '..', 'static/uploads'), {
     prefix: '/uploads/',
   });
-  app.enableCors({
-    origin: 'http://localhost:3001',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-  });
-  await app.listen(process.env.PORT ?? 3000);
+
+  // Escucha en 0.0.0.0 para Render
+  const port = process.env.PORT ?? 3000;
+  await app.listen(port, '0.0.0.0');
 }
 void bootstrap();
