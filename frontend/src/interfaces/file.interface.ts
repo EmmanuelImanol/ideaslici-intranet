@@ -1,4 +1,5 @@
 import { User } from "./user.interface";
+import { Area } from "./area.interface"; // 🛠️ Importante importar la interfaz de Area
 
 // 1. Interfaz base para evitar repeticiones
 interface BaseFile {
@@ -8,18 +9,18 @@ interface BaseFile {
   createdAt: string;
 }
 
-// 2. Interfaz completa para la metadata (lo que usas en el listado general)
+// 2. Interfaz completa para la metadata (Lo que usas en el listado y el visor)
 export interface FileMetadata extends BaseFile {
   title: string;
-  category: string;
-  description?: string;
   storageName: string;
-  mimeType: string; // Unificamos a camelCase como en NestJS
+  mimeType: string;
+  description?: string;
+  areaId: number;   // 🛠️ Agregado para el manejo de IDs
+  area?: Area;      // 🛠️ SOLUCIÓN: Agregamos la relación para que TS reconozca 'file.area'
 }
 
-// 3. Interfaz para el Feed de Actividad (con la relación cargada)
+// 3. Interfaz para el Feed de Actividad (Con el usuario que subió)
 export interface FileActivity extends BaseFile {
-  // 🛠️ SOLUCIÓN: Eliminamos 'any' y usamos la relación 'uploadedBy' que definiste en Nest
   uploadedBy: User; 
   mimeType: string;
   filename: string;

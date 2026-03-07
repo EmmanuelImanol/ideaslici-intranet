@@ -16,6 +16,9 @@ import { FileViewer } from '@/components/files/FileViewer';
 import toast from 'react-hot-toast';
 
 export default function FilesPage() {
+  // 1. URL dinámica para producción (Render)
+  const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:3000';
+  
   const { user } = useAuthStore();
   const [files, setFiles] = useState<FileMetadata[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -53,10 +56,13 @@ export default function FilesPage() {
     loadFiles();
   }, [loadFiles]);
 
-  const handleUpload = async (file: File, title: string, category: string) => {
+  // 2. handleUpload corregido con areaId y sin 'any'
+  const handleUpload = async (file: File, title: string, areaId: number) => {
     if (uploading) return;
     setUploading(true);
-    const uploadPromise = filesService.upload(file, title, category);
+
+    // Nota: Asegúrate que filesService.upload acepte (file, title, areaId)
+    const uploadPromise = filesService.upload(file, title, areaId);
 
     toast.promise(uploadPromise, {
       loading: 'Subiendo archivo a Nexus...',
@@ -69,7 +75,7 @@ export default function FilesPage() {
       setIsModalOpen(false);
       await loadFiles();
     } catch (error) {
-      console.error(error);
+      console.error("Error en la subida:", error);
     } finally {
       setUploading(false);
     }
@@ -145,7 +151,7 @@ export default function FilesPage() {
       </div>
 
       <div className="flex-1 flex gap-4 overflow-hidden relative">
-        {/* LISTADO DE ARCHIVOS REINSTALADO */}
+        {/* LISTADO DE ARCHIVOS */}
         <div className={`w-full md:w-80 lg:w-96 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col overflow-hidden transition-all duration-300 ${showMobileVisor ? 'hidden md:flex' : 'flex'}`}>
           <div className="p-4 border-b bg-slate-50/50 flex justify-between items-center">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Documentos</span>
@@ -181,7 +187,7 @@ export default function FilesPage() {
                   <div className="flex flex-col overflow-hidden">
                     <span className="font-bold text-sm truncate">{file.title}</span>
                     <span className={`text-[10px] uppercase font-bold tracking-tighter ${activeFile?.id === file.id ? 'text-blue-100' : 'text-slate-400'}`}>
-                      {file.category}
+                      {file.area?.name || 'General'}
                     </span>
                   </div>
                 </div>
@@ -216,7 +222,7 @@ export default function FilesPage() {
                   </button>
 
                   <a
-                    href={`http://localhost:3000/api/files/view/${activeFile.storageName}`}
+                    href={`${API_URL}/api/files/view/${activeFile.storageName}`}
                     download={activeFile.originalName}
                     className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 rounded-xl text-xs font-bold border border-blue-100 hover:bg-blue-100 transition-all"
                   >
@@ -232,21 +238,21 @@ export default function FilesPage() {
                       key={activeFile.id}
                       controls
                       className="max-w-full max-h-full rounded-2xl shadow-2xl border border-white/10"
-                      src={`http://localhost:3000/api/files/view/${activeFile.storageName}`}
+                      src={`${API_URL}/api/files/view/${activeFile.storageName}`}
                     />
                   </div>
                 ) : isOfficeFile(activeFile.storageName) ? (
                   <div className="text-center p-8 space-y-4">
                     <LuFileText size={60} className="text-slate-600 mx-auto animate-pulse" />
-                    <p className="text-white font-bold text-sm">Vista previa limitada (Entorno Local)</p>
+                    <p className="text-white font-bold text-sm">Vista previa limitada</p>
                     <p className="text-slate-400 text-[10px] max-w-xs mx-auto uppercase tracking-widest font-bold">
-                      Los archivos Office requieren despliegue para el visor online
+                      Descarga el archivo para verlo con la aplicación de escritorio
                     </p>
                   </div>
                 ) : (
                   <iframe
                     key={activeFile.id}
-                    src={`http://localhost:3000/api/files/view/${activeFile.storageName}#toolbar=0`}
+                    src={`${API_URL}/api/files/view/${activeFile.storageName}#toolbar=0`}
                     className="w-full h-full border-none absolute inset-0 bg-white"
                     title="Visor Nexus"
                   />
