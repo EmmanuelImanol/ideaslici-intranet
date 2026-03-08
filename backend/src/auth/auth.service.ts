@@ -22,7 +22,9 @@ export class AuthService {
 
     const isPasswordValid = await Hasher.checkPassword(password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Credenciales inválidas');
+      throw new UnauthorizedException(
+        'La llave de acceso es incorrecta. Inténtalo de nuevo.',
+      );
     }
 
     const payload: JwtPayload = {

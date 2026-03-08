@@ -6,7 +6,6 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
-  DeleteDateColumn,
   UpdateDateColumn,
   CreateDateColumn,
   ManyToOne,
@@ -44,9 +43,6 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
-
-  @DeleteDateColumn() // <--- Esta columna gestiona el borrado lógico
-  deletedAt: Date;
 
   @OneToMany(() => FileMetadata, (file) => file.uploadedBy)
   files: FileMetadata[];

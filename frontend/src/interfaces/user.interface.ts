@@ -6,6 +6,12 @@ export enum Role {
   EMPLEADO = 'empleado'
 }
 
+export interface ApiErrorResponse {
+  message: string | string[];
+  error: string;
+  statusCode: number;
+}
+
 export interface User {
   id: number;
   firstName: string;

@@ -54,6 +54,6 @@ export class UsersController {
   @Delete(':id')
   @Roles(Role.ADMIN)
   async remove(@Param('id') id: number) {
-    return await this.usersService.softDelete(id);
+    return await this.usersService.remove(id);
   }
 }

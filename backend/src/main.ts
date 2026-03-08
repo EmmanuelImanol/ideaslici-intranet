@@ -33,7 +33,8 @@ async function bootstrap() {
   });
 
   // Escucha en 0.0.0.0 para Render
-  const port = process.env.PORT ?? 3000;
+  const port = process.env.PORT ?? 3001;
   await app.listen(port, '0.0.0.0');
+  console.log(`Application is running on: http://localhost:${port}/api`);
 }
 void bootstrap();

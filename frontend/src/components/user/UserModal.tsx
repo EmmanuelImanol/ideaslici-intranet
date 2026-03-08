@@ -20,6 +20,7 @@ export default function UserModal({ isOpen, onClose, onSuccess, userToEdit }: Us
   const [loading, setLoading] = useState<boolean>(false);
   const [areas, setAreas] = useState<Area[]>([]);
   const [loadingAreas, setLoadingAreas] = useState<boolean>(false);
+  const [backendErrors, setBackendErrors] = useState<string[]>([]);
 
   const [formData, setFormData] = useState<CreateUserDto>({
     firstName: '',
@@ -29,6 +30,10 @@ export default function UserModal({ isOpen, onClose, onSuccess, userToEdit }: Us
     role: Role.EMPLEADO,
     areaId: undefined
   });
+
+  useEffect(() => {
+    if (isOpen) setBackendErrors([]);
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen) {
@@ -74,12 +79,13 @@ export default function UserModal({ isOpen, onClose, onSuccess, userToEdit }: Us
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setLoading(true);
+    setBackendErrors([]);
+    setLoading(true);
     try {
       if (userToEdit) {
         // 🛠️ FIX 1: Limpiamos el objeto para no enviar password vacío en actualización
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password, ...updateData } = formData;
-        
         await usersService.update(userToEdit.id, updateData);
         toast.success("Perfil actualizado");
       } else {
@@ -90,12 +96,20 @@ export default function UserModal({ isOpen, onClose, onSuccess, userToEdit }: Us
       onClose();
     } catch (error) {
       if(axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Error en el servidor");
+        const responseData = error.response?.data;
+        if(Array.isArray(responseData?.message)) {
+          setBackendErrors(responseData.message);
+          toast.error("Revisa los campos marcados");
+        } else {
+          toast.error(responseData?.message || "Error en el servidor");
+        }
       }
     } finally {
       setLoading(false);
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-100 flex items-center justify-center p-2 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300">
@@ -128,6 +142,18 @@ export default function UserModal({ isOpen, onClose, onSuccess, userToEdit }: Us
           onSubmit={handleSubmit} 
           className="p-6 sm:p-8 space-y-5 overflow-y-auto custom-scrollbar"
         >
+          {backendErrors.length > 0 && (
+            <div className="bg-red-50 border border-red-100 p-4 rounded-2xl animate-in slide-in-from-top-2">
+              <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-2">Se detectaron errores:</p>
+              <ul className="space-y-1">
+                {backendErrors.map((err, idx) => (
+                  <li key={idx} className="text-[11px] text-red-600 font-bold flex items-center gap-2">
+                    <div className="w-1 h-1 bg-red-400 rounded-full" /> {err}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Nombre</label>
@@ -171,7 +197,9 @@ export default function UserModal({ isOpen, onClose, onSuccess, userToEdit }: Us
               <LuLayers className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
               <select
                 required
-                className="w-full pl-12 pr-10 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-sm font-bold transition-all appearance-none"
+                className={`w-full pl-12 pr-10 py-3.5 bg-slate-50 border rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-sm font-bold transition-all appearance-none ${
+                  backendErrors.some(e => e.includes('areaId')) ? 'border-red-300 ring-1 ring-red-100' : 'border-slate-100'
+                }`}
                 value={formData.areaId || ''}
                 onChange={e => setFormData({ ...formData, areaId: Number(e.target.value) })}
               >

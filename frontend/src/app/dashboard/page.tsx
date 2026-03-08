@@ -23,7 +23,7 @@ export default function DashboardPage() {
       if (!isHydrated || !token) return;
 
       try {
-        // Ejecución en paralelo para optimizar carga
+        // 1. Cargamos lo que todos pueden ver
         const [fCount, recentData] = await Promise.all([
           filesService.getCount(),
           filesService.getRecent()
@@ -32,13 +32,17 @@ export default function DashboardPage() {
         setFileCount(fCount);
         setActivities(recentData);
 
-        // Lógica de acceso condicional por Rol
-        if (user?.role === 'admin' || user?.role === 'gerente') {
-          const uCount = await usersService.getAll();
-          setUserCount(Array.isArray(uCount) ? uCount.length : uCount);
+        // 2. Cargamos estadísticas de administración solo si el rol lo permite
+        // Nota: Asegúrate de que 'admin' y 'gerente' coincidan con tu Enum del backend
+        const privilegedRoles = ['admin', 'gerente', 'ADMIN', 'GERENTE']; 
+        
+        if (user?.role && privilegedRoles.includes(user.role)) {
+          // Usamos el endpoint de conteo que ahora es simple en el backend
+          const uCount = await usersService.getCount(); 
+          setUserCount(uCount);
         }
       } catch (error: unknown) {
-        console.error("Error en Dashboard:", error instanceof Error ? error.message : error);
+        console.error("Error en Dashboard:", error);
       }
     };
 
