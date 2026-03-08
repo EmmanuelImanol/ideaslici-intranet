@@ -12,7 +12,6 @@ import {
   LuLogOut,
   LuMenu,
   LuX,
-  LuChevronRight,
   LuLayers // 🛠️ Importamos el nuevo icono
 } from 'react-icons/lu';
 import { IconType } from 'react-icons';
@@ -62,35 +61,30 @@ export default function Sidebar() {
       )}
 
       {/* Contenedor Sidebar */}
+      {/* Contenedor Sidebar */}
       <aside
         className={`fixed left-0 top-0 z-45 h-screen w-72 bg-slate-950 text-slate-300 transition-all duration-300 ease-in-out border-r border-slate-800 lg:translate-x-0 ${isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
           }`}
       >
-        <div className="flex h-full flex-col">
+        {/* Agregamos overflow-hidden al padre para que no scrollee todo el aside, sino solo el nav */}
+        <div className="flex h-full flex-col overflow-hidden pb-safe">
 
-          {/* Header de Identidad NEXUS */}
-          <div className="flex flex-col items-center justify-center py-10 px-6">
+          {/* Header de Identidad NEXUS (Mantenemos flex-shrink-0 para que no se aplaste) */}
+          <div className="flex shrink-0 flex-col items-center justify-center py-8 px-6">
             <div className="bg-blue-600 p-2 rounded-xl mb-3 shadow-lg shadow-blue-900/40">
-              {/* Cambiamos el icono estático por uno que represente NEXUS o dejamos el Dashboard */}
               <LuLayers className="text-white" size={28} />
             </div>
             <h2 className="text-2xl font-black tracking-tighter text-white uppercase italic">
               {APP_NAME}<span className="text-blue-500">.</span>
             </h2>
-            <div className="mt-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                {user.role} Portal
-              </span>
-            </div>
           </div>
 
-          {/* Menú de Navegación */}
+          {/* Menú de Navegación (flex-1 y overflow-y-auto permite que esta sea la única parte que scrollea) */}
           <nav className="flex-1 space-y-1 overflow-y-auto px-4 custom-scrollbar">
             <p className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">
               Menú Principal
             </p>
             {filteredLinks.map((link) => {
-              // Si el icono no está en el mapa, usamos uno por defecto
               const Icon = ICON_MAP[link.icon] || LuFileText;
               const isActive = pathname === link.href;
 
@@ -105,37 +99,39 @@ export default function Sidebar() {
                     }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon size={20} className={isActive ? 'text-white' : 'group-hover:text-blue-400 transition-colors'} />
+                    <Icon size={20} />
                     {link.label}
                   </div>
-                  {isActive && <LuChevronRight size={16} className="animate-in slide-in-from-left-2" />}
                 </Link>
               );
             })}
           </nav>
 
-          {/* Perfil de Usuario y Logout */}
-          <div className="border-t border-slate-900 p-6 space-y-4">
-            <div className="flex items-center gap-3 px-2">
-              <div className="h-9 w-9 rounded-full bg-blue-600/10 flex items-center justify-center border border-blue-600/20 text-blue-500 font-black text-sm">
+          {/* Perfil de Usuario y Logout (flex-shrink-0 para que NUNCA se esconda) */}
+          <div className="shrink-0 border-t border-slate-900 bg-slate-950 p-4 space-y-3">
+            <div className="flex items-center gap-3 px-3 py-2 rounded-2xl bg-slate-900/40 border border-slate-800/50">
+              <div className="h-9 w-9 rounded-xl bg-linear-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-900/20 text-white font-black text-sm shrink-0">
                 {user.firstName ? user.firstName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
               </div>
-              <div className="flex flex-col overflow-hidden">
-                <span className="text-xs font-bold text-white truncate">
+              <div className="flex flex-col min-w-0">
+                <span className="text-[11px] font-bold text-white truncate leading-none mb-1">
                   {user.firstName} {user.lastName}
                 </span>
-                <span className="text-[10px] text-slate-500 truncate uppercase font-bold tracking-tighter">
-                  Área: {user.area?.name || 'S/A'}
+                <span className="text-[9px] text-blue-500 truncate uppercase font-black tracking-widest">
+                  {user.area?.name || 'Nexus User'}
                 </span>
               </div>
             </div>
 
             <button
               onClick={handleLogout}
-              className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-red-400 transition-all hover:bg-red-500/10 active:scale-95"
+              className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-red-500/5 px-4 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-red-500 transition-all duration-300 hover:bg-red-500 hover:text-white hover:shadow-[0_0_20px_rgba(239,68,68,0.3)] active:scale-95 border border-red-500/20"
             >
-              <LuLogOut size={20} />
-              Cerrar Sesión
+              {/* Efecto de brillo interno al hacer hover */}
+              <div className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/10 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
+
+              <LuLogOut size={18} className="transition-transform group-hover:-translate-x-1" />
+              <span>Finalizar Sesión</span>
             </button>
           </div>
         </div>
