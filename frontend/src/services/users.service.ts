@@ -2,6 +2,11 @@ import api from './api.service';
 import { CreateUserDto, User } from '@/interfaces/user.interface';
 
 export const usersService = {
+  getCount: async (): Promise<number> => {
+    const { data } = await api.get<{ count: number }>('/users/count');
+    return data.count;
+  },
+  
   getAll: async (): Promise<User[]> => {
     const { data } = await api.get<User[]>('/users');
     return data;
@@ -12,8 +17,8 @@ export const usersService = {
     return data;
   },
 
-  delete: async (id: number): Promise<{ message: string, id: number }> => {
-    const { data } = await api.delete<{ message: string, id: number }>(`/users/${id}`);
+  delete: async (id: number): Promise<{ message: string }> => {
+    const { data } = await api.delete<{ message: string }>(`/users/${id}`);
     return data;
   },
 
