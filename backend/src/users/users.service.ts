@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { IsNull, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Hasher } from 'src/common/utils/auth';
 
@@ -17,9 +17,7 @@ export class UsersService {
   ) {}
 
   async countActive(): Promise<number> {
-    return await this.userRepository.count({
-      where: { deletedAt: IsNull() },
-    });
+    return await this.userRepository.count();
   }
 
   async create(createUserDto: CreateUserDto) {
@@ -76,7 +74,6 @@ export class UsersService {
 
   async findAll() {
     return await this.userRepository.find({
-      where: { deletedAt: IsNull() },
       relations: ['area'],
       select: [
         'id',
@@ -93,7 +90,7 @@ export class UsersService {
 
   async findOneByEmail(email: string) {
     return await this.userRepository.findOne({
-      where: { email, deletedAt: IsNull() },
+      where: { email },
       relations: {
         area: true,
       },
@@ -109,12 +106,12 @@ export class UsersService {
     });
   }
 
-  async softDelete(id: number) {
+  async remove(id: number) {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
     }
-    await this.userRepository.softRemove(user);
+    await this.userRepository.delete(user);
     return {
       message: `Usuario ${user.email} movido a la papelera correctamente`,
       id,
