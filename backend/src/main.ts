@@ -15,8 +15,6 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       frontendUrl, // URL de producción desde variables de entorno
-      'http://localhost:3000', // Local para desarrollo
-      'http://localhost:3001',
     ].filter(Boolean) as string[], // Filtramos por si frontendUrl llega undefined
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,

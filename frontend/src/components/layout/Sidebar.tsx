@@ -63,7 +63,7 @@ export default function Sidebar() {
       {/* Contenedor Sidebar */}
       {/* Contenedor Sidebar */}
       <aside
-        className={`fixed left-0 top-0 z-45 h-screen w-72 bg-slate-950 text-slate-300 transition-all duration-300 ease-in-out border-r border-slate-800 lg:translate-x-0 ${isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+        className={`fixed left-0 top-0 z-45 w-72 bg-slate-950 text-slate-300 transition-all duration-300 ease-in-out border-r border-slate-800 lg:translate-x-0 ${isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
           }`}
       >
         {/* Agregamos overflow-hidden al padre para que no scrollee todo el aside, sino solo el nav */}
