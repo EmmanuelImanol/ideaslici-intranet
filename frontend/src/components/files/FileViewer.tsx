@@ -12,23 +12,29 @@ interface FileViewerProps {
 
 export const FileViewer = ({ filename, mimeType, originalName, onClose }: FileViewerProps) => {
   // 🛠️ 1. Usamos la variable de entorno para que apunte a Render en producción
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
   const fileUrl = `${API_URL}/files/view/${filename}`;
   
-  // 🛠️ 2. Lista extendida de formatos de Office
-  const isOffice = [
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  const officeExtensions = ['.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'];
+  const fileExtension = originalName.toLowerCase().substring(originalName.lastIndexOf('.'));
+
+  // 2. Definimos los MimeTypes conocidos de Office
+  const officeMimeTypes = [
     'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     'application/vnd.ms-powerpoint',
-  ].includes(mimeType);
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  ];
 
-  const isImage = mimeType.startsWith('image/');
-  const isPDF = mimeType === 'application/pdf';
+  // 3. Detección Híbrida: Si coincide el MimeType O la extensión, es Office
+  const isOffice = officeMimeTypes.includes(mimeType) || officeExtensions.includes(fileExtension);
 
-  // 🛠️ 3. Visor de Office (Solo funcionará si API_URL es una URL pública de Render)
+  const isImage = mimeType.startsWith('image/') || ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(fileExtension);
+  const isPDF = mimeType === 'application/pdf' || fileExtension === '.pdf';
+
+  // Visor de Office con embed.aspx (más compatible)
   const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
 
   return (
@@ -54,7 +60,7 @@ export const FileViewer = ({ filename, mimeType, originalName, onClose }: FileVi
           {isImage ? (
             <div className="relative w-full h-full p-4">
                {/* Usamos img normal para evitar problemas de dominios configurados en next.config.js */}
-               <Image src={fileUrl} alt={originalName} className="w-full h-full object-contain" />
+               <Image src={fileUrl} alt={originalName} className="w-full h-full object-contain" priority/>
             </div>
           ) : isPDF ? (
             <iframe src={`${fileUrl}#toolbar=0`} className="w-full h-full border-none" title={originalName} />
