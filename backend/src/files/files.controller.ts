@@ -28,6 +28,7 @@ import { FilesService } from './files.service';
 import { createReadStream } from 'fs';
 import { User } from 'src/users/entities/user.entity';
 import * as express from 'express';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 @Controller('files')
 export class FilesController {
@@ -54,26 +55,44 @@ export class FilesController {
   }
 
   @Get('view/:filename')
+  @Public()
   viewFile(@Param('filename') filename: string, @Res() res: express.Response) {
     const path = this.filesService.getFilePath(filename);
+    const mimeType = this.getMimeType(filename);
+
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
 
     // 'inline' le dice al navegador que intente mostrar el archivo en lugar de descargarlo
-    return res.sendFile(path, {
-      headers: {
-        'Content-Disposition': `inline; filename="${filename}"`,
-        'Content-Type': this.getMimeType(filename), // Opcional si Nest ya lo detecta
-      },
+    return res.sendFile(path, (err) => {
+      if (err) {
+        res.status(404).json({ message: 'Archivo no encontrado' });
+      }
     });
   }
 
   // Método auxiliar para asegurar el Content-Type (opcional)
   private getMimeType(filename: string): string {
-    if (filename.endsWith('.pdf')) return 'application/pdf';
-    if (filename.endsWith('.jpg') || filename.endsWith('.jpeg'))
-      return 'image/jpeg';
-    if (filename.endsWith('.png')) return 'image/png';
-    if (filename.endsWith('.mp4')) return 'video/mp4';
-    return 'application/octet-stream';
+    const ext = extname(filename).toLowerCase();
+    const mimetypes: Record<string, string> = {
+      '.pdf': 'application/pdf',
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.mp4': 'video/mp4',
+      '.docx':
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      '.doc': 'application/msword',
+      '.xlsx':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      '.xls': 'application/vnd.ms-excel',
+      '.pptx':
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      '.ppt': 'application/vnd.ms-powerpoint',
+    };
+
+    return mimetypes[ext] || 'application/octet-stream';
   }
 
   @Post('upload')
