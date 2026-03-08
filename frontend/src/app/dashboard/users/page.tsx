@@ -64,7 +64,7 @@ export default function UsersPage() {
 
   const executeDelete = async () => {
     if (!userToDelete) return;
-    
+
     try {
       setIsDeleting(true);
       await usersService.delete(userToDelete.id);
@@ -132,8 +132,8 @@ export default function UsersPage() {
         <button
           onClick={() => setSelectedArea(null)}
           className={`relative min-w-40 p-6 rounded-3xl border transition-all duration-300 flex flex-col items-start justify-between h-32 ${selectedArea === null
-              ? 'bg-slate-900 border-slate-900 shadow-xl shadow-slate-200'
-              : 'bg-white border-slate-100 hover:border-slate-300 text-slate-400'
+            ? 'bg-slate-900 border-slate-900 shadow-xl shadow-slate-200'
+            : 'bg-white border-slate-100 hover:border-slate-300 text-slate-400'
             }`}
         >
           <div className="flex flex-col items-start">
@@ -169,8 +169,8 @@ export default function UsersPage() {
               key={name}
               onClick={() => setSelectedArea(name)}
               className={`relative min-w-45 p-6 rounded-3xl border transition-all duration-300 flex flex-col items-start justify-between h-32 group ${isActive
-                  ? 'bg-white border-slate-900 shadow-xl shadow-slate-100 ring-1 ring-slate-950'
-                  : 'bg-white border-slate-100 hover:bg-slate-50/50'
+                ? 'bg-white border-slate-900 shadow-xl shadow-slate-100 ring-1 ring-slate-950'
+                : 'bg-white border-slate-100 hover:bg-slate-50/50'
                 }`}
             >
               <div className="flex flex-col items-start w-full">
@@ -284,18 +284,25 @@ export default function UsersPage() {
               </div>
 
               {/* ACTION BUTTONS */}
-              <div className="flex items-center gap-3 w-full justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-500">
+              <div className={`
+  flex items-center gap-3 w-full justify-center transition-all duration-500
+  /* En desktop (lg): se ocultan y suben (tu diseño original) */
+  lg:opacity-0 lg:group-hover:opacity-100 lg:translate-y-2 lg:group-hover:translate-y-0
+  /* En mobile y tablet (default): siempre visibles y en su posición */
+  opacity-100 translate-y-0 mt-2
+`}>
                 <button
                   onClick={() => handleEdit(user)}
-                  className="flex-1 max-w-25 py-3 bg-slate-50 text-slate-400 hover:bg-slate-900 hover:text-white rounded-2xl transition-all shadow-sm flex items-center justify-center gap-2 font-bold text-[10px] uppercase"
+                  className="flex-1 max-w-25 py-3 bg-slate-50 text-slate-600 lg:text-slate-400 hover:bg-slate-900 hover:text-white rounded-2xl transition-all shadow-sm flex items-center justify-center gap-2 font-bold text-[10px] uppercase active:scale-95"
                 >
-                  <LuUserPen size={16} /> Editar
+                  <LuUserPen size={16} /> <span className="xs:inline">Editar</span>
                 </button>
+
                 <button
                   onClick={() => openDeleteConfirm(user.id, `${user.firstName} ${user.lastName}`)}
-                  className="flex-1 max-w-25 py-3 bg-slate-50 text-slate-400 hover:bg-red-600 hover:text-white rounded-2xl transition-all shadow-sm flex items-center justify-center gap-2 font-bold text-[10px] uppercase"
+                  className="flex-1 max-w-25 py-3 bg-slate-50 text-slate-600 lg:text-slate-400 hover:bg-red-600 hover:text-white rounded-2xl transition-all shadow-sm flex items-center justify-center gap-2 font-bold text-[10px] uppercase active:scale-95"
                 >
-                  <LuTrash2 size={16} /> Borrar
+                  <LuTrash2 size={16} /> <span className="xs:inline">Borrar</span>
                 </button>
               </div>
             </div>
