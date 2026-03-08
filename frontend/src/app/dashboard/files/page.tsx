@@ -16,9 +16,6 @@ import { FileViewer } from '@/components/files/FileViewer';
 import toast from 'react-hot-toast';
 
 export default function FilesPage() {
-  // 1. URL dinámica para producción (Render)
-  const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:3000';
-  
   const { user } = useAuthStore();
   const [files, setFiles] = useState<FileMetadata[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -170,7 +167,7 @@ export default function FilesPage() {
                 className={`group p-3 rounded-2xl cursor-pointer transition-all flex items-center justify-between border ${activeFile?.id === file.id
                   ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-100'
                   : 'hover:bg-blue-50 border-transparent text-slate-700'
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3 overflow-hidden">
                   {(user?.role === 'admin' || user?.role === 'gerente') && (
@@ -222,7 +219,7 @@ export default function FilesPage() {
                   </button>
 
                   <a
-                    href={`${API_URL}/api/files/view/${activeFile.storageName}`}
+                    href={`${process.env.NEXT_PUBLIC_API_URL}/files/view/${activeFile.storageName}`}
                     download={activeFile.originalName}
                     className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 rounded-xl text-xs font-bold border border-blue-100 hover:bg-blue-100 transition-all"
                   >
@@ -238,21 +235,25 @@ export default function FilesPage() {
                       key={activeFile.id}
                       controls
                       className="max-w-full max-h-full rounded-2xl shadow-2xl border border-white/10"
-                      src={`${API_URL}/api/files/view/${activeFile.storageName}`}
+                      src={`${process.env.NEXT_PUBLIC_API_URL}/files/view/${activeFile.storageName}`}
                     />
                   </div>
+
                 ) : isOfficeFile(activeFile.storageName) ? (
-                  <div className="text-center p-8 space-y-4">
-                    <LuFileText size={60} className="text-slate-600 mx-auto animate-pulse" />
-                    <p className="text-white font-bold text-sm">Vista previa limitada</p>
-                    <p className="text-slate-400 text-[10px] max-w-xs mx-auto uppercase tracking-widest font-bold">
-                      Descarga el archivo para verlo con la aplicación de escritorio
-                    </p>
+                  <div className="w-full h-full bg-white relative">
+                    {/* 🛠️ Insertamos el visor de Microsoft Online */}
+                    <iframe
+                      key={activeFile.id}
+                      src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(`${process.env.NEXT_PUBLIC_API_URL}/files/view/${activeFile.storageName}`)}`}
+                      className="w-full h-full border-none"
+                      title={activeFile.title}
+                      frameBorder="0"
+                    />
                   </div>
                 ) : (
                   <iframe
                     key={activeFile.id}
-                    src={`${API_URL}/api/files/view/${activeFile.storageName}#toolbar=0`}
+                    src={`${process.env.NEXT_PUBLIC_API_URL}/files/view/${activeFile.storageName}#toolbar=0`}
                     className="w-full h-full border-none absolute inset-0 bg-white"
                     title="Visor Nexus"
                   />
