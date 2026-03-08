@@ -2,6 +2,7 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
+  IsNumber,
   IsString,
   MaxLength,
   MinLength,
@@ -26,6 +27,10 @@ export class CreateUserDto {
   @IsString()
   @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
   password: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  areaId: number;
 
   @IsEnum(Role, { message: 'El rol debe ser: admin, gerente o empleado' })
   @IsNotEmpty()
